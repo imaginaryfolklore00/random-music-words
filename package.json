@@ -15,13 +15,55 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "lint:fix": "eslint src/**/*.js --fix",
+    "lint": "eslint src/**/*.js"
   },
   "eslintConfig": {
     "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+      "eslint:recommended",
+      "plugin:import/errors",
+      "plugin:react/recommended",
+      "plugin:jsx-a11y/recommended"
+    ],
+    "plugins": [
+      "react",
+      "import",
+      "jsx-a11y"
+    ],
+    "rules": {
+      "react/prop-types": 0,
+      "indent": ["error", 2],
+      "linebreak-style": 1,
+      "quotes": ["error", "double"],
+      "semi": 1,
+      "no-trailing-spaces": 1
+     },
+     "parserOptions": {
+      "ecmaVersion": 2021,
+      "sourceType": "module",
+      "ecmaFeatures": {
+      "jsx": true
+      }
+     },
+     "env": {
+      "es6": true,
+      "browser": true,
+      "node": true
+     },
+     "settings": {
+      "react": {
+        "version": "detect"
+       }
+      }
+    },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": "npm run lint:fix"
   },
   "browserslist": {
     "production": [
@@ -34,5 +76,12 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jsx-a11y": "^6.5.1",
+    "eslint-plugin-react": "^7.29.4",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.4.1"
   }
 }
