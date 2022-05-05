@@ -1,11 +1,24 @@
 import React, { useState } from "react";
+import wordService from "./services/words";
 
 const App = () => {
   const [inputNumber, setInputNumber] = useState(5);
+  const [randomWord, setRandomWord] = useState("");
 
-  const handleNumberSubmit = (event) => event.preventDefault();
+  let randWord = "";
 
-  //This is a form to get number input from the user, the input is kept in a state 'inputNumber'
+  //gets a random word from API response and stores it in a state
+  const getRandomWord = async () => {
+    await wordService.getWord().then((apiData) => randWord = apiData[0].word);
+    setRandomWord(randWord);
+  };
+
+  const handleNumberSubmit = async event => {
+    event.preventDefault();
+    getRandomWord();
+  };
+
+  //A form to get number input from the user, the input is kept in a state 'inputNumber'
   const numberForm = () => (
     <form onSubmit={handleNumberSubmit}>
       <div>
@@ -27,10 +40,13 @@ const App = () => {
   );
 
   return (
-    <>
+    <div>
       <h1>Random words into music titles</h1>
       {numberForm()}
-    </>
+      <ol>
+        <li>{randomWord}</li>
+      </ol>
+    </div>
   );
 };
 
