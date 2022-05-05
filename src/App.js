@@ -1,21 +1,38 @@
 import React, { useState } from "react";
+import ListOfWords from "./components/ListOfWords";
 import wordService from "./services/words";
 
 const App = () => {
   const [inputNumber, setInputNumber] = useState(5);
-  const [randomWord, setRandomWord] = useState("");
+  const [wordList, setWordList] = useState([]);
 
-  let randWord = "";
-
-  //gets a random word from API response and stores it in a state
+  //returns a random word from API response
   const getRandomWord = async () => {
+    let randWord = "";
     await wordService.getWord().then((apiData) => randWord = apiData[0].word);
-    setRandomWord(randWord);
+    return randWord;
+  };
+
+  //requests given number of words and later stores it in a state 'wordList'
+  const fillWorldList = async () => {
+    let randWordList = [];
+    let wordToPush = "";
+
+    const arrayLength = inputNumber;
+    while (randWordList.length < arrayLength) {
+      wordToPush = await getRandomWord();
+      while (randWordList.includes(wordToPush)) { //safeguard against duplicate words
+        wordToPush = await getRandomWord();
+      }
+      randWordList.push(wordToPush);
+    }
+
+    setWordList(randWordList.sort());
   };
 
   const handleNumberSubmit = async event => {
     event.preventDefault();
-    getRandomWord();
+    await fillWorldList();
   };
 
   //A form to get number input from the user, the input is kept in a state 'inputNumber'
@@ -43,9 +60,7 @@ const App = () => {
     <div>
       <h1>Random words into music titles</h1>
       {numberForm()}
-      <ol>
-        <li>{randomWord}</li>
-      </ol>
+      <ListOfWords wordsToShow={wordList} />
     </div>
   );
 };
