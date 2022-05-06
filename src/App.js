@@ -1,16 +1,26 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ListOfWords from "./components/ListOfWords";
 import wordService from "./services/words";
+import musicService from "./services/musicbrainz";
+
 
 const App = () => {
   const [inputNumber, setInputNumber] = useState(5);
   const [wordList, setWordList] = useState([]);
+  useEffect(() => {if (wordList.length > 0) fillMusicList()}, [wordList]); //when the list of words changes, starts obtaining songs
 
-  //returns a random word from API response
+  //extracts a random word from API response
   const getRandomWord = async () => {
     let randWord = "";
     await wordService.getWord().then((apiData) => randWord = apiData[0].word);
     return randWord;
+  };
+
+  //returns an object with a list of recording matching given title
+  const getMatchingRecordings = async (mTitle) => {
+    let matchRec = [];
+    await musicService.getRecordings(mTitle).then((apiData) => matchRec = apiData);
+    return matchRec;
   };
 
   //requests given number of words and later stores it in a state 'wordList'
@@ -19,7 +29,7 @@ const App = () => {
     let wordToPush = "";
 
     const arrayLength = inputNumber;
-    while (randWordList.length < arrayLength) {
+    for (let i = 0; i < arrayLength; i++) {
       wordToPush = await getRandomWord();
       while (randWordList.includes(wordToPush)) { //safeguard against duplicate words
         wordToPush = await getRandomWord();
@@ -28,6 +38,17 @@ const App = () => {
     }
 
     setWordList(randWordList.sort());
+  };
+
+  const fillMusicList = async () => {
+    const wordsArray = wordList;
+    let obtainedList = [];
+    let recordToPush = [];
+    let recordList = [];
+
+    for (let i = 0; i < wordsArray.length; i++) {
+      await getMatchingRecordings(wordsArray[i]).then(l => console.log(l));
+    }
   };
 
   const handleNumberSubmit = async event => {
