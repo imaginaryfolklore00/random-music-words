@@ -7,7 +7,9 @@ import musicService from "./services/musicbrainz";
 const App = () => {
   const [inputNumber, setInputNumber] = useState(5);
   const [wordList, setWordList] = useState([]);
-  useEffect(() => {if (wordList.length > 0) fillMusicList()}, [wordList]); //when the list of words changes, starts obtaining songs
+  const [musicList, setMusicList] = useState([]);
+
+  useEffect(() => {if (wordList.length > 0)  fillMusicList()}, [wordList]); //when the list of words changes, starts obtaining songs
 
   //extracts a random word from API response
   const getRandomWord = async () => {
@@ -19,7 +21,7 @@ const App = () => {
   //returns an object with a list of recording matching given title
   const getMatchingRecordings = async (mTitle) => {
     let matchRec = [];
-    await musicService.getRecordings(mTitle).then((apiData) => matchRec = apiData);
+    await musicService.getRecordings(mTitle).then((apiData) => matchRec = apiData.recordings);
     return matchRec;
   };
 
@@ -37,18 +39,87 @@ const App = () => {
       randWordList.push(wordToPush);
     }
 
-    setWordList(randWordList.sort());
+    setWordList(randWordList);
   };
 
   const fillMusicList = async () => {
     const wordsArray = wordList;
     let obtainedList = [];
-    let recordToPush = [];
-    let recordList = [];
+    let finalList = [];
 
     for (let i = 0; i < wordsArray.length; i++) {
-      await getMatchingRecordings(wordsArray[i]).then(l => console.log(l));
+      let element = wordsArray[i];
+      await getMatchingRecordings(element).then(l => obtainedList.push(l));
+      obtainedList[i].word = element;
     }
+
+    const formatList = (recordsArray) => {
+      let formattedList = [];
+      let elementToPush = [];
+
+      recordsArray.map(element => {
+        if (element.length) {
+          element.map(song => {
+            if (!formattedList.includes(song)) {
+              elementToPush = song;
+              elementToPush.isSong = true;
+            }
+          });
+        }
+
+        elementToPush.word = element.word;
+
+        formattedList.push(elementToPush);
+        elementToPush = [];
+      });
+
+      return formattedList;
+    };
+
+    const formatArtists = (artistArray) => {
+      let formattedArtists = "";
+      artistArray.map((artst, index) => {
+        formattedArtists += artst.name;
+        if (artistArray[index + 1])  formattedArtists += " & ";
+      });
+
+      return formattedArtists;
+    };
+
+    const formatAlbum = (releasesArray) => {
+      let relGroup = [];
+      let albumTitle = "";
+
+      releasesArray.map(rel => {
+        if (rel["release-group"]) {
+          relGroup = rel["release-group"];
+          if (relGroup["primary-type"] === "Album")  albumTitle = relGroup.title;
+        }
+      });
+
+      return albumTitle;
+    };
+
+    const formatSong = (rawSong) => {
+      let formattedSong = [];
+
+      formattedSong.word = rawSong.word;
+
+      if (rawSong.isSong) {
+        formattedSong.artist = rawSong["artist-credit"] ? formatArtists(rawSong["artist-credit"]) : "";
+        formattedSong.album = rawSong.releases ? formatAlbum(rawSong.releases) : "";
+        formattedSong.title = rawSong.title ? rawSong.title : "";
+      }
+      else  formattedSong.notFound = true;
+
+      return formattedSong;
+    };
+
+    formatList(obtainedList).map(song => {
+      finalList.push(formatSong(song));
+    });
+
+    setMusicList(finalList);
   };
 
   const handleNumberSubmit = async event => {
