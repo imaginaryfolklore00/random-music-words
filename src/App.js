@@ -6,7 +6,6 @@ import musicService from "./services/musicbrainz";
 import recordingsParser from "./utils/recordingsParser";
 
 
-
 const App = () => {
   const [inputNumber, setInputNumber] = useState(5);
   const [wordList, setWordList] = useState([]);
