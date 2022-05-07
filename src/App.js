@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ListOfWords from "./components/ListOfWords";
+import ListOfSongs from "./components/ListOfSongs";
 import wordService from "./services/words";
 import musicService from "./services/musicbrainz";
 
@@ -153,6 +154,7 @@ const App = () => {
       <h1>Random words into music titles</h1>
       {numberForm()}
       <ListOfWords wordsToShow={wordList} />
+      <ListOfSongs songsToShow={musicList} />
     </div>
   );
 };
