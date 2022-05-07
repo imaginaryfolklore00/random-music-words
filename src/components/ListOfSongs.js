@@ -18,7 +18,7 @@ const ListOfSongs = ({ songsToShow }) => {
             );}
           else {
             return (
-              <li key={element.word}> 
+              <li key={element.word}>
                 {element.word}: <br />
                 {element.artist} - {element.album} - {element.title}
               </li>
