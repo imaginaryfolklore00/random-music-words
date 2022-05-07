@@ -8,7 +8,7 @@ After cloning the repo, make sure to run:
 
 ### `npm install`
 
-This is done in order to cover all dependencies of the app.\
+This is done in order to cover all dependencies of the app.
 
 In the project directory, you can run:
 
